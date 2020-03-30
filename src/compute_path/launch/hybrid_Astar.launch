@@ -1,0 +1,121 @@
+<launch>
+
+    <!-- 参数调整 -->
+
+    <!-- 测试次数 --> <param name="test_times" type="int" value="5" />  
+    <!-- 测试地图编号 --> <arg name="file_num" value="5" />  
+    <!-- 扩展分支数目 --> <arg name="extension_point_num" default="11" />
+    <!-- 曲率约束cost --> <arg name="heur_curvature_cof" default="50.0" />
+
+
+
+    <!-- optimize server -->
+    <node name="optimize_server" pkg="optimize_path" type="server_optimize.py"/>
+    <!-- <arg name="width" value="70" />
+    <arg name="heigh" value="20" /> -->
+
+    <!-- grid_map set param -->
+    <include file="$(find grid_map)/launch/grid_map.launch">
+        <!-- <arg name="width" value="$(arg width)" />
+        <arg name="heigh" value="$(arg heigh)" /> -->
+        <arg name="file_num" value="$(arg file_num)" />
+        <arg name="map_origin_z" value="0.0" />
+        <arg name="map_resolutin" value="1.0" />
+        <arg name="map_origin_x" value="-10.0" />
+        <arg name="map_origin_y" value="-10.0" />
+        <arg name="file_path" value="$(find grid_map)/map/"/>
+    </include>
+
+    <!-- hollow create node launch -->
+    <!-- <include file="$(find hollow_create)/launch/hollow_create.launch">
+        <arg name="yaw" default="0.0" />
+        <arg name="size_x" default="10.0" />
+        <arg name="size_y" default="5.0" />
+        <arg name="place_x" default="12.0" />
+        <arg name="place_y" default="0.0" />
+    </include> -->
+
+    <!-- compute_pth set param -->
+    <arg name="truck_vel" default="2.0" />
+    <arg name="truck_width" default="8.0" />
+    <arg name="truck_length" default="12.0" />
+    <arg name="truck_base2back" default="3.0" />
+    <arg name="start_yaw" default="0.0" />
+    <arg name="start_point_x" default="0.0" />
+    <arg name="start_point_y" default="0.0" />
+
+    <!-- 直线 -->
+    <arg name="goal_yaw" default="0.0" />
+    <arg name="goal_point_x" default="50.0" />
+    <arg name="goal_point_y" default="0.0" />
+
+    <!-- 弯道 -->
+    <!-- <arg name="goal_yaw" default="-0.4" />
+    <arg name="goal_point_x" default="180.0" />
+    <arg name="goal_point_y" default="-2.0" /> -->
+
+    <arg name="dist_limit_coff" default="10.0" />
+    <arg name="node2goal_r" default="1.5" />
+    <arg name="heur_dis_cof" default="20.0" />
+
+    <arg name="node2goal_yaw" default="0.1" />
+    <arg name="min_turning_radius" default="30.0" />
+    <arg name="obstacle_threshold" default="80" />
+
+    <!-- 2020.03.04 modify -->
+    <arg name="use_goal_flg" default="false" />
+    <arg name="move_step" default="2.4" />
+    <arg name="segment_dis" default="0.2" />
+    <!-- <arg name="extension_point_num" default="3" /> -->
+    <arg name="heur_yaw_cof_last" default="10.0" />  <!-- 目前10最好 -->
+    <arg name="heur_yaw_cof_goal" default="20.0" />
+    <!-- <arg name="heur_curvature_cof" default="10.0" /> -->
+    <arg name="angle_size" default="360" />
+
+
+
+
+    <!-- path optimize -->
+    <arg name="path_seg_num" default="6" />
+    <arg name="path_fit_degree" default="3" />
+    <arg name="path_resolution" default="144" />
+    <arg name="path_optimize_flg" default="false" />
+
+
+    <node name="hybrid_A" pkg="compute_path" type="hybrid_A" output="screen">
+        <param name="TruckInfo/truck_vel" type="double" value="$(arg truck_vel)" />
+        <param name="TruckInfo/truck_width" type="double" value="$(arg truck_width)" />
+        <param name="TruckInfo/truck_length" type="double" value="$(arg truck_length)" />
+        <param name="TruckInfo/truck_base2back" type="double" value="$(arg truck_base2back)" />
+        <param name="TruckInfo/move_step" type="double" value="$(arg move_step)" />
+        <param name="TruckInfo/goal_yaw" type="double" value="$(arg goal_yaw)" />
+        <param name="TruckInfo/start_yaw" type="double" value="$(arg start_yaw)" />
+        <param name="TruckInfo/goal_point_x" type="double" value="$(arg goal_point_x)" />
+        <param name="TruckInfo/goal_point_y" type="double" value="$(arg goal_point_y)" />
+        <param name="TruckInfo/start_point_x" type="double" value="$(arg start_point_x)" />
+        <param name="TruckInfo/start_point_y" type="double" value="$(arg start_point_y)" />
+        <param name="TruckInfo/dist_limit_coff" type="double" value="$(arg dist_limit_coff)" />
+        <param name="compute_path/node2goal_r" type="double" value="$(arg node2goal_r)" />
+        <param name="compute_path/heur_dis_cof" type="double" value="$(arg heur_dis_cof)" />
+        <param name="compute_path/node2goal_yaw" type="double" value="$(arg node2goal_yaw)" />
+        <param name="compute_path/min_turning_radius" type="double" value="$(arg min_turning_radius)" />
+        <param name="ObsInfo/obstacle_threshold" type="int" value="$(arg obstacle_threshold)" />
+        <param name="compute_path/path_seg_num" type="int" value="$(arg path_seg_num)" />
+        <param name="compute_path/path_fit_degree" type="int" value="$(arg path_fit_degree)" />
+        <param name="compute_path/path_resolution" type="int" value="$(arg path_resolution)" />
+        <param name="compute_path/path_optimize_flg" type="bool" value="$(arg path_optimize_flg)" />
+
+        <!-- 2020.03.04 modify -->
+        <param name="compute_path/use_goal_flg" type="bool" value="$(arg use_goal_flg)" />
+        <param name="compute_path/move_step" type="double" value="$(arg move_step)" />
+        <param name="compute_path/segment_dis" type="double" value="$(arg segment_dis)" />
+        <param name="compute_path/extension_point_num" type="int" value="$(arg extension_point_num)" />
+        <param name="compute_path/angle_size" type="int" value="$(arg angle_size)" />
+        <param name="compute_path/heur_yaw_cof_goal" type="double" value="$(arg heur_yaw_cof_goal)" />
+        <param name="compute_path/heur_yaw_cof_last" type="double" value="$(arg heur_yaw_cof_last)" />
+        <param name="compute_path/heur_curvature_cof" type="double" value="$(arg heur_curvature_cof)" />
+        <!-- 待删除 -->
+        <!-- <param name="compute_path/path_discrete_num" type="int" value="$(arg path_discrete_num)" /> -->
+
+    </node>
+</launch>

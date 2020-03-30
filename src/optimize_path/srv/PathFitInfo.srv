@@ -1,0 +1,6 @@
+uint8 fit_degree               # fit degree
+uint8 path_seg_num             # path segmentation nums
+uint8 path_resolution          # path resolution
+float32[] prime_path           # fit points list
+---
+float32[] final_path           # final path

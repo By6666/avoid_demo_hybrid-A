@@ -1,0 +1,26 @@
+<launch>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_map)/launch/grid_map.rviz" />
+
+    <!-- <arg name="width" />
+    <arg name="heigh" /> -->
+    <arg name="file_num" />
+    <arg name="file_path" />
+    <arg name="map_origin_x" />
+    <arg name="map_origin_y" />
+    <arg name="map_origin_z" />
+    <arg name="map_resolutin" />
+
+    <node name="grid_map" pkg="grid_map" type="grid_map" output="screen">
+        <!-- <param name="width" type="int" value="$(arg width)" />
+        <param name="heigh" type="int" value="$(arg heigh)" /> -->
+        <param name="file_num" type="int" value="$(arg file_num)" />
+
+        <param name="file_path" type="str" value="$(arg file_path)" />
+        <param name="map_origin_x" type="double" value="$(arg map_origin_x)" />
+        <param name="map_origin_y" type="double" value="$(arg map_origin_y)" />
+        <param name="map_origin_z" type="double" value="$(arg map_origin_z)" />
+        <param name="map_resolutin" type="double" value="$(arg map_resolutin)"/>
+    </node>
+
+
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+    <node name="optimize_server" pkg="optimize_path" type="server_optimize.py"/>
+</launch>

@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="yaw" />
+    <arg name="size_x" />
+    <arg name="size_y" />
+    <arg name="place_x" />
+    <arg name="place_y" />
+
+    <node pkg="hollow_create" name="hollow_create" type="hollow_create" >
+        <param name="yaw" type="double" value="$(arg yaw)" />
+        <param name="size_x" type="double" value="$(arg size_x)" />
+        <param name="size_y" type="double" value="$(arg size_y)" />
+        <param name="place_x" type="double" value="$(arg place_x)" />
+        <param name="place_y" type="double" value="$(arg place_y)" />
+
+    </node>
+
+</launch>
