@@ -25,6 +25,7 @@ HybridAstar::HybridAstar() {
   private_nh.param<double>("heur_yaw_cof_goal", heur_yaw_cof_goal_, 20.0);
   private_nh.param<double>("heur_yaw_cof_last", heur_yaw_cof_last_, 20.0);
   private_nh.param<double>("heur_curvature_cof", heur_curvature_cof_, 10.0);
+  private_nh.param<double>("heur_reference_line_cof", reference_line_cof_, 10.0);
 
   //** 待删除
   discrete_angle_ = 2.0 * M_PI / static_cast<double>(angle_size_);
@@ -366,6 +367,7 @@ void HybridAstar::UpgrateParam() {
   private_nh.param<double>("heur_yaw_cof_goal", heur_yaw_cof_goal_, 20.0);
   private_nh.param<double>("heur_yaw_cof_last", heur_yaw_cof_last_, 20.0);
   private_nh.param<double>("heur_curvature_cof", heur_curvature_cof_, 10.0);
+  private_nh.param<double>("heur_reference_line_cof", reference_line_cof_, 10.0);
 
   // discrete_angle_ = 2.0 * M_PI / static_cast<double>(angle_size_);
 

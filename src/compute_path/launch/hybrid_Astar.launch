@@ -2,11 +2,17 @@
 
     <!-- 参数调整 -->
 
-    <!-- 测试次数 --> <param name="test_times" type="int" value="5" />  
+    <!-- 曲率显示 --> <param name="curvature_show_flg" type="bool" value="false" />  
+    <!-- 测试模式 --> <param name="test_model_flg" type="bool" value="false" />  
+    <!-- 测试次数 --> <param name="test_times" type="int" value="1" />  
     <!-- 测试地图编号 --> <arg name="file_num" value="5" />  
-    <!-- 扩展分支数目 --> <arg name="extension_point_num" default="11" />
-    <!-- 曲率约束cost --> <arg name="heur_curvature_cof" default="50.0" />
+    <!-- 扩展分支数目 --> <arg name="extension_point_num" default="5" />
 
+    <!-- 启发式weight --> 
+    <arg name="heur_curvature_cof" default="100.0" />
+    <arg name="heur_yaw_cof_last" default="50.0" />  
+    <arg name="heur_yaw_cof_goal" default="1.0" />
+    <arg name="heur_reference_line_cof" default="2.0" />
 
 
     <!-- optimize server -->
@@ -37,9 +43,10 @@
 
     <!-- compute_pth set param -->
     <arg name="truck_vel" default="2.0" />
-    <arg name="truck_width" default="8.0" />
-    <arg name="truck_length" default="12.0" />
-    <arg name="truck_base2back" default="3.0" />
+    <arg name="truck_width" default="2.11" /> <!-- 8.0 -->
+    <arg name="truck_length" default="4.933" /> <!-- 12.0 -->
+    <arg name="truck_base2back" default="1.043" /> <!-- 3.0 -->
+    <arg name="min_turning_radius" default="8.0" /> <!-- 30.0 -->
     <arg name="start_yaw" default="0.0" />
     <arg name="start_point_x" default="0.0" />
     <arg name="start_point_y" default="0.0" />
@@ -56,10 +63,9 @@
 
     <arg name="dist_limit_coff" default="10.0" />
     <arg name="node2goal_r" default="1.5" />
-    <arg name="heur_dis_cof" default="20.0" />
+    <arg name="heur_dis_cof" default="50.0" />
 
     <arg name="node2goal_yaw" default="0.1" />
-    <arg name="min_turning_radius" default="30.0" />
     <arg name="obstacle_threshold" default="80" />
 
     <!-- 2020.03.04 modify -->
@@ -67,9 +73,6 @@
     <arg name="move_step" default="2.4" />
     <arg name="segment_dis" default="0.2" />
     <!-- <arg name="extension_point_num" default="3" /> -->
-    <arg name="heur_yaw_cof_last" default="10.0" />  <!-- 目前10最好 -->
-    <arg name="heur_yaw_cof_goal" default="20.0" />
-    <!-- <arg name="heur_curvature_cof" default="10.0" /> -->
     <arg name="angle_size" default="360" />
 
 
@@ -87,7 +90,7 @@
         <param name="TruckInfo/truck_width" type="double" value="$(arg truck_width)" />
         <param name="TruckInfo/truck_length" type="double" value="$(arg truck_length)" />
         <param name="TruckInfo/truck_base2back" type="double" value="$(arg truck_base2back)" />
-        <param name="TruckInfo/move_step" type="double" value="$(arg move_step)" />
+        <param name="TruckInfo/move_step" type="double" value="$(arg node2goal_r)" />
         <param name="TruckInfo/goal_yaw" type="double" value="$(arg goal_yaw)" />
         <param name="TruckInfo/start_yaw" type="double" value="$(arg start_yaw)" />
         <param name="TruckInfo/goal_point_x" type="double" value="$(arg goal_point_x)" />
@@ -114,6 +117,7 @@
         <param name="compute_path/heur_yaw_cof_goal" type="double" value="$(arg heur_yaw_cof_goal)" />
         <param name="compute_path/heur_yaw_cof_last" type="double" value="$(arg heur_yaw_cof_last)" />
         <param name="compute_path/heur_curvature_cof" type="double" value="$(arg heur_curvature_cof)" />
+        <param name="compute_path/heur_reference_line_cof" type="double" value="$(arg heur_reference_line_cof)" />
         <!-- 待删除 -->
         <!-- <param name="compute_path/path_discrete_num" type="int" value="$(arg path_discrete_num)" /> -->
 

@@ -6,9 +6,16 @@ ObsInfo::ObsInfo() : obs_list_ok_(false), hollow_ok_(false) {
   private_nh.param<int>("obstacle_threshold", obstacle_threshold_, 80);
 }
 
-void ObsInfo::GridMapCall(const nav_msgs::OccupancyGridConstPtr& msg) {
+// void ObsInfo::GridMapCall(const nav_msgs::OccupancyGridConstPtr& msg) {
+//   obs_list_ok_ = false;
+//   map = *msg;
+//   MapHandel(map.data);
+// }
+
+void ObsInfo::GridMapCall(const grid_map::MapInfoConstPtr& msg) {
   obs_list_ok_ = false;
-  map = *msg;
+  map = msg->occ_map;
+  ref_line = msg->reference_line;
   MapHandel(map.data);
 }
 

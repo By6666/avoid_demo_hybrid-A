@@ -21,8 +21,9 @@ class GridMap {
   inline int get_col() const { return col_; }
   inline std::string get_file_pwd() const { return file_name_; }
   inline float get_map_resolution() const { return map_resolution_; }
-  inline std::vector<int8_t> get_map_data() const { return map_data; }
-  inline geometry_msgs::Point get_map_origin() const { return origin_point; }
+  inline const std::vector<int8_t>& get_map_data() const { return map_data; }
+  inline const geometry_msgs::Point& get_map_origin() const { return origin_point; }
+  inline const std::vector<geometry_msgs::Point>& get_ref_line() const { return ref_line; }
 
  private:
   int file_num_;
@@ -32,6 +33,7 @@ class GridMap {
   std::string file_path_;
   std::vector<int8_t> map_data;
   geometry_msgs::Point origin_point;
+  std::vector<geometry_msgs::Point> ref_line;
 
   inline int16_t CalculateID(int16_t raw, int16_t col) {
     return raw * col_ + col;

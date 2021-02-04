@@ -13,6 +13,7 @@ Panels:
         - /MarkerArray2
         - /MarkerArray2/Namespaces1
         - /BoundingBoxArray1
+        - /Path1
       Splitter Ratio: 0.5
     Tree Height: 463
   - Class: rviz/Selection
@@ -99,15 +100,38 @@ Visualization Manager:
     - Class: jsk_rviz_plugin/BoundingBoxArray
       Enabled: true
       Name: BoundingBoxArray
-      Topic: /hollow_create/hollow_info
+      Topic: ""
       Unreliable: false
       Value: true
       alpha: 0.800000012
-      color: 170; 85; 0
-      coloring: Flat color
-      line width: 0.100000001
+      color: 25; 255; 0
+      coloring: Auto
+      line width: 0.00499999989
       only edge: false
-      show coords: true
+      show coords: false
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 85; 255; 0
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /map_ref_line
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -142,7 +166,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 15.501771
+      Scale: 14.841692
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 23.9993401

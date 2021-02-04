@@ -36,6 +36,7 @@ bool GridMap::ReadMap() {
   // read_grid.close();
 
   map_data.clear();
+  ref_line.clear();
   col_ = raw_ = 0;
   file_name_ = file_path_ + std::to_string(file_num_) + ".txt";
 
@@ -51,10 +52,19 @@ bool GridMap::ReadMap() {
     getline(read_grid, grid_buff);
     if (grid_buff.size() == 0) break;
     for (int16_t j = 0; j < grid_buff.length(); ++j) {
-      if (grid_buff[j] == 'x')
+      if (grid_buff[j] == 'x') {
         map_data.push_back(85);
-      else if (grid_buff[j] != ' ')
+      } else if (grid_buff[j] != ' ') {
+        if (grid_buff[j] == 'o') {
+          geometry_msgs::Point point_tmp;
+          point_tmp.x = j / 2 + origin_point.x;
+          point_tmp.y = raw_ + origin_point.y;
+          point_tmp.z = 0.0;
+          
+          ref_line.push_back(point_tmp);
+        }
         map_data.push_back(0);
+      }
     }
     ++raw_;
   }

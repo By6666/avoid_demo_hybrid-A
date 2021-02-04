@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 
   // subscribe map topic, get grid map info
   ros::Subscriber map_sub =
-      nh.subscribe("/map", 1, &ObsInfo::GridMapCall, &obs_info);
+      nh.subscribe("/map_info", 1, &ObsInfo::GridMapCall, &obs_info);
 
   // subscribe hollow topic, get hollow info
   ros::Subscriber hollow_sub = nh.subscribe(
@@ -29,13 +29,16 @@ int main(int argc, char** argv) {
 
   // pub truck show info
   ros::Publisher truck_show_pub =
-      nh.advertise<visualization_msgs::MarkerArray>("truck_show", 1);
+      nh.advertise<visualization_msgs::MarkerArray>("truck_show", 1, true);
 
   ros::Publisher update_show_pub =
-      nh.advertise<visualization_msgs::MarkerArray>("update_pose_show", 1);
+      nh.advertise<visualization_msgs::MarkerArray>("update_pose_show", 1, true);
 
   double time_sum = 0.0;
   int cnt = 0, test_times_cnt;
+  bool test_model_flg, curvature_show_flg;
+  nh.param<bool>("curvature_show_flg", curvature_show_flg, false);
+  nh.param<bool>("test_model_flg", test_model_flg, false);
   nh.param<int>("test_times", test_times_cnt, 20);
 
   while (ros::ok()) {
@@ -66,7 +69,7 @@ int main(int argc, char** argv) {
       std::cout << "hybrid_astar execute successful !!" << std::endl;
     }
 
-    if (!test_times_cnt) hybrid_astar.PrintPath();
+    if (test_model_flg && !test_times_cnt) hybrid_astar.PrintPath();
     std::cout << "*********** Hybrid Astar End !! ***********" << std::endl
               << "path_score: " << hybrid_astar.get_path_evaluate_value()
               << "  average_curvature_diff: "
@@ -88,7 +91,7 @@ int main(int argc, char** argv) {
     truck_info.TruckShow(hybrid_astar.get_final_path(), truck_show_pub);
     hybrid_astar.UpdatePoseShow(update_show_pub);
 
-    if (!test_times_cnt) {
+    if (test_model_flg && !test_times_cnt) {
       // while (ros::ok()) {
       truck_info.TruckShow(hybrid_astar.get_final_path(), truck_show_pub);
       ros::Duration(0.1).sleep();
@@ -102,10 +105,13 @@ int main(int argc, char** argv) {
 
     ros::Duration(0.1).sleep();
   }
-  ros::shutdown();
-  matplotlibcpp::plot(hybrid_astar.get_curvature_data());
-  matplotlibcpp::grid(true);
-  matplotlibcpp::show();
+  
+  if (curvature_show_flg) {
+    ros::shutdown();
+    matplotlibcpp::plot(hybrid_astar.get_curvature_data());
+    matplotlibcpp::grid(true);
+    matplotlibcpp::show();
+  }
 
   return 0;
 }

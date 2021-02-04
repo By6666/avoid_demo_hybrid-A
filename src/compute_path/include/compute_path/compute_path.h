@@ -12,6 +12,7 @@
 #include "compute_path/hint_show.h"
 #include "compute_path/state.h"
 #include "geometry_msgs/Pose.h"
+#include "geometry_msgs/Point.h"
 #include "optimize_path/PathFitInfo.h"
 #include "ros/ros.h"
 #include "tf/tf.h"
@@ -52,6 +53,7 @@ class HybridAstar {
   inline _Type_Hollow& set_hollow_list() { return hollow_info_; }
   inline double& set_map_resolution() { return map_resolution_; }
   inline std::vector<int8_t>& set_map_data() { return map_data_; }
+  inline std::vector<geometry_msgs::Point>& set_ref_line() { return ref_line_; }
   inline geometry_msgs::Pose& set_goal_pose() { return goal_pose_; }
   inline geometry_msgs::Pose& set_start_pose() { return start_pose_; }
   inline geometry_msgs::Point& set_map_origin() { return map_origin_; }
@@ -117,7 +119,7 @@ class HybridAstar {
   bool use_goal_flg_;
   std::vector<double> update_points_orientation_stg_;
   double heur_dis_cof_, heur_yaw_cof_goal_, heur_yaw_cof_last_,
-      heur_curvature_cof_;
+      heur_curvature_cof_, reference_line_cof_;
   double path_curvature_value_, path_length_, max_curvature_diff_,
       curvature_average_diff_;  // 评估最终路径的得分
   std::vector<double> curvature_data_stg_;
@@ -140,6 +142,7 @@ class HybridAstar {
   geometry_msgs::Point map_origin_;
   AstarNode *start_info_, *goal_info_, *find_goal_info_;
   geometry_msgs::Pose start_pose_, goal_pose_;
+  std::vector<geometry_msgs::Point> ref_line_;
 
   /* param for truck */
   double truck_length_, truck_width_, truck_base2back_;
@@ -172,10 +175,8 @@ class HybridAstar {
     return Code3D(CalculateXYIndex(x, y), CalculateYawIndex(yaw));
   }
   inline _Type_ID CalculateXYIndex(double x, double y) {
-    return Code2D(
-        static_cast<_Type_ID>((y - map_origin_.y) /** 50.0*/ / map_resolution_),
-        static_cast<_Type_ID>((x - map_origin_.x) /** 50.0*/ /
-                              map_resolution_));
+    return Code2D(static_cast<_Type_ID>((y - map_origin_.y) /** 2.0*/ / map_resolution_),
+                  static_cast<_Type_ID>((x - map_origin_.x) /** 2.0*/ / map_resolution_));
   }
 
   inline int calculateXYIndexMap(double x, double y) {
@@ -248,11 +249,17 @@ class HybridAstar {
     //** 添加曲率约束cost
     double dis_curvature = 0.0;
     if (np->best_p != NULL) {
-      dis_curvature = fabs(TranformYawRange(node.yaw - np->yaw) -
-                           TranformYawRange(np->yaw - np->best_p->yaw));
+      // dis_curvature = fabs(TranformYawRange(node.yaw - np->yaw) -
+      //                      TranformYawRange(np->yaw - np->best_p->yaw));
+      dis_curvature = fabs((node.yaw - np->yaw) - (np->yaw - np->best_p->yaw));
     }
     double heur_curvature_cof =
         pow(heur_curvature_cof_, JudgeOrientation(dis_curvature));
+
+    //** 2021.02.02 add
+    //** 添加中心线约束  
+    double away_reference_cost = CalculateDisToRefLine(node);
+    
 
     return heur_dis_cof_ * CalculateDisTwoPoint(node.x, node.y,
                                                 goal_pose_.position.x,
@@ -260,6 +267,7 @@ class HybridAstar {
            heur_yaw_cof_goal_ * dis_yaw_to_goal +
            heur_yaw_cof_last_ * dis_yaw_to_last +
            heur_curvature_cof * dis_curvature +
+           reference_line_cof_ * away_reference_cost +
            map_data_[calculateXYIndexMap(node.x, node.y)];
   }
 
@@ -277,10 +285,8 @@ class HybridAstar {
            (fabs(node.yaw - goal_info_->yaw) < node2goal_yaw_);
   }
   inline bool IsGoal(const AstarNode* const node) {
-    return (CalculateDisTwoPoint(node->x, node->y, goal_info_->x,
-                                 goal_info_->y) < node2goal_r_) &&
-           (TranformYawRange(fabs(node->yaw - goal_info_->yaw)) <
-            node2goal_yaw_);
+    return (CalculateDisTwoPoint(node->x, node->y, goal_info_->x, goal_info_->y) < node2goal_r_) &&
+           (fabs(node->yaw - goal_info_->yaw) < node2goal_yaw_);
   }
 
   // is obstacle
@@ -340,6 +346,50 @@ class HybridAstar {
       result.push_back(elem->yaw);
     }
     return result;
+  }
+
+  // calculate the lastest distance to reference line
+  double CalculateDisToRefLine(const AstarNode& node) {
+    if (ref_line_.size() < 2) {
+      // When sizes of points on reference line less 2, we will don't care this item.
+      // So return 0.0
+      return 0.0;
+    }
+
+    double nearest_dis = __DBL_MAX__;
+
+    for (int i = 0; i + 1 < ref_line_.size(); ++i) {
+      double temp_dis = CalculateDisToLine(ref_line_[i], ref_line_[i + 1], node);
+      nearest_dis = std::min(nearest_dis, temp_dis);
+    }
+
+    return nearest_dis;
+  }
+
+  double CalculateDisToLine(const geometry_msgs::Point& start, const geometry_msgs::Point& end,
+                            const AstarNode& point) {
+    const double length = std::hypot(start.x - end.x, start.y - end.y);
+
+    if (length < 1e-3) {
+      return std::hypot(point.x - start.x, point.y - start.y);
+    }
+
+    const double unit_x = (end.x - start.x) / length;
+    const double unit_y = (end.y - start.y) / length;
+
+    const double x0 = point.x - start.x;
+    const double y0 = point.y - start.y;
+
+    const double proj = x0 * unit_x + y0 * unit_y;
+    if (proj < 0.0) {
+      return std::hypot(x0, y0);
+    }
+
+    if (proj > length) {
+      return std::hypot(point.x - end.x, point.y - end.y);
+    }
+
+    return std::fabs(x0 * unit_y - y0 * unit_x);
   }
 };
 
